@@ -1,0 +1,12 @@
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\bin\Debug\KopotovVittaTest.exe.config
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\bin\Debug\KopotovVittaTest.exe
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\bin\Debug\KopotovVittaTest.pdb
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.csprojAssemblyReference.cache
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.Form1.resources
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.Properties.Resources.resources
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.csproj.GenerateResource.cache
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.csproj.CoreCompileInputs.cache
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.exe
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.pdb
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.MainForm.resources
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.PaymentTransfer.resources
