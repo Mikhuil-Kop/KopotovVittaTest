@@ -1,254 +1,217 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.Spatial;
 using System.Data.SqlClient;
 using System.Data;
+using System.Data.Entity;
+using System.Linq;
 
 namespace KopotovVittaTest
 {
     public static class Database
     {
-        private static SqlConnection connection;
-
-        public static void Initialize()
-        {
-            connection = new SqlConnection(@"Data Source=DESKTOP-P0TES7A\SQLEXPRESS;Initial Catalog=Vitta;Integrated Security=true");
-            connection.Open();
-        }
-
-        public static void Close()
-        {
-            connection.Close();
-        }
-
-
         public static bool TryGetUserId(string name, out int id)
         {
-            var adapter = new SqlDataAdapter();
-            var table = new DataTable();
-
-            var test = $"Select * From Users Where Name = '{name}'";
-            var command = new SqlCommand(test, connection);
-            adapter.SelectCommand = command;
-            adapter.Fill(table);
-
-            if (table.Rows.Count >= 1)
+            using (Context db = new Context())
             {
-                id = table.Rows[0].Field<int>("Id");
-                return true;
-            }
-            else
-            {
-                id = 0;
-                return false;
+                var users = db.Users.Where(u => u.Name == name);
+
+                if (users.Count() <= 0)
+                {
+                    id = -1;
+                    return false;
+                }
+                else
+                {
+                    id = users.First().Id;
+                    return true;
+                }
             }
         }
 
         public static int CreateUser(string name)
         {
-            var adapter = new SqlDataAdapter();
-            var table = new DataTable();
+            using (Context db = new Context())
+            {
+                var userId = 0;
+                if (db.Users.Count() != 0)
+                    userId = db.Users.Max(u => u.Id) + 1;
 
-            var textId = "Select Top(1) Id From Users Order By Id Desc";
-            var commadnId = new SqlCommand(textId, connection);
-            adapter.SelectCommand = commadnId;
-            adapter.Fill(table);
+                db.Users.Add(new User() {
+                    Id = userId,
+                    Name = name
+                });
+                db.SaveChanges();
 
-            int i;
-            if (table.Rows.Count != 0)
-                i = table.Rows[0].Field<int>("Id") + 1;
-            else
-                i = 0;
-
-            var textInsert = $"Insert Into Users (Id, Name) Values({i},'{name}')";
-            var commandInsert = new SqlCommand(textInsert, connection);
-            commandInsert.ExecuteNonQuery();
-
-            return i;
+                return userId;
+            }
         }
 
 
-        public static int CreateOrder(int userId, int value, DateTime date)
+        public static void CreateOrder(int userId, int value, DateTime date)
         {
-            var d = date.Date.ToString("yyyy-MM-dd");
+            using (Context db = new Context())
+            {
+                var orderId = 0;
+                if (db.Orders.Count() != 0)
+                    orderId = db.Orders.Max(u => u.Id) + 1;
 
-            var textInsert = $"IF EXISTS (Select * From Orders)" +
-                $"Insert Into Orders(Id, Date, Summ, PaymentSumm, MasterId) Select Top(1) Id + 1, '{d}', {value}, 0, {userId} From Orders Order By Id Desc;" +
-                $" else " +
-                $"Insert Into Orders(Id, Date, Summ, PaymentSumm, MasterId) Values(0, '{d}', {value}, 0, {userId})";
-            var commandInsert = new SqlCommand(textInsert, connection);
-            return commandInsert.ExecuteNonQuery();
+                db.Orders.Add(new Order()
+                {
+                    Id = orderId,
+                    Date = date,
+                    MasterId = userId,
+                    Summ = value,
+                    PaymentSumm = 0
+                });
+                db.SaveChanges();
+            }
         }
 
-        public static int CreateMoney(int userId, int value, DateTime date)
+        public static void CreateMoney(int userId, int value, DateTime date)
         {
-            var d = date.Date.ToString("yyyy-MM-dd");
+            using (Context db = new Context())
+            {
+                var moneyId = 0;
+                if (db.Money.Count() != 0)
+                    moneyId = db.Money.Max(u => u.Id) + 1;
 
-            var textInsert = $"IF EXISTS (Select * From Money)" +
-                 $"Insert Into Money(Id, Date, Summ, SummLeft, MasterId) Select Top(1) Id + 1, '{d}', {value}, {value}, {userId} From Money Order By Id Desc;" +
-                 $" else " +
-                 $"Insert Into Money(Id, Date, Summ, SummLeft, MasterId) Values(0, '{d}', {value}, {value}, {userId})";
-            var commandInsert = new SqlCommand(textInsert, connection);
-            return commandInsert.ExecuteNonQuery();
+                db.Money.Add(new Money()
+                {
+                    Id = moneyId,
+                    Date = date,
+                    SummLeft = value,
+                    Summ = value,
+                    MasterId = userId
+                });
+                db.SaveChanges();
+            }
         }
 
-        public static int CreatePayment(int ordersId, int moneyId, int val)
+        public static bool CreatePayment(int ordersId, int moneyId, int val)
         {
-            var textInsert = $"Insert Into Payment(MoneyId, OrderId, Summ) Values({moneyId},{ordersId},{val})";
-            var commandInsert = new SqlCommand(textInsert, connection);
-            return commandInsert.ExecuteNonQuery();
+            using (Context db = new Context())
+            {
+                int was = db.Payments.Count();
+
+                var Id = 0;
+                if (was != 0)
+                    Id = db.Payments.Max(u => u.Id) + 1;
+
+                db.Payments.Add(new Payment()
+                {
+                    Id = Id,
+                    OrderId = ordersId,
+                    MoneyId = moneyId,
+                    Summ = val
+                });
+                db.SaveChanges();
+
+                int will = db.Payments.Count();
+
+                return was != will;
+            }
         }
 
 
         public static Order GetOrderById(int id)
         {
-            var adapter = new SqlDataAdapter();
-            var table = new DataTable();
-
-            var textId = $"Select * From Orders Where Id = {id}";
-            var commadnId = new SqlCommand(textId, connection);
-            adapter.SelectCommand = commadnId;
-            adapter.Fill(table);
-            var r = table.Rows[0];
-
-            return new Order
+            using (Context db = new Context())
             {
-                id = r.Field<int>("Id"),
-                summ = r.Field<int>("Summ"),
-                paymentSumm = r.Field<int>("PaymentSumm"),
-                date = r.Field<DateTime>("Date"),
-            };
+                return db.Orders.Find(id);
+            }
         }
 
         public static Money GetMoneyById(int id)
         {
-            var adapter = new SqlDataAdapter();
-            var table = new DataTable();
-
-            var textId = $"Select * From Money Where Id = {id}";
-            var commadnId = new SqlCommand(textId, connection);
-            adapter.SelectCommand = commadnId;
-            adapter.Fill(table);
-            var r = table.Rows[0];
-
-            return new Money
+            using (Context db = new Context())
             {
-                id = r.Field<int>("Id"),
-                summ = r.Field<int>("Summ"),
-                summLeft = r.Field<int>("SummLeft"),
-                date = r.Field<DateTime>("Date"),
-            };
+                return db.Money.Find(id);
+            }
         }
 
         public static Order[] GetOrders(int userId)
         {
-            var adapter = new SqlDataAdapter();
-            var table = new DataTable();
-
-            var textId = $"Select * From Orders Where MasterId = {userId}";
-            var commadnId = new SqlCommand(textId, connection);
-            adapter.SelectCommand = commadnId;
-            adapter.Fill(table);
-
-            var arr = new Order[table.Rows.Count];
-            int i = 0;
-
-            foreach (DataRow r in table.Rows)
-                arr[i++] = new Order
-                {
-                    id = r.Field<int>("Id"),
-                    summ = r.Field<int>("Summ"),
-                    paymentSumm = r.Field<int>("PaymentSumm"),
-                    date = r.Field<DateTime>("Date"),
-                };
-
-            return arr;
+            using (Context db = new Context())
+            {
+                return db.Orders.Where(p => p.MasterId == userId).ToArray();
+            }
         }
 
         public static Money[] GetMoney(int userId)
         {
-            var adapter = new SqlDataAdapter();
-            var table = new DataTable();
-
-            var textId = $"Select * From Money Where MasterId = {userId}";
-            var commadnId = new SqlCommand(textId, connection);
-            adapter.SelectCommand = commadnId;
-            adapter.Fill(table);
-
-            var arr = new Money[table.Rows.Count];
-            int i = 0;
-
-            foreach (DataRow r in table.Rows)
-                arr[i++] = new Money
-                {
-                    id = r.Field<int>("Id"),
-                    summ = r.Field<int>("Summ"),
-                    summLeft = r.Field<int>("SummLeft"),
-                    date = r.Field<DateTime>("Date"),
-                };
-
-            return arr;
+            using (Context db = new Context())
+            {
+                return db.Money.Where(p => p.MasterId == userId).ToArray();
+            }
         }
 
         public static Payment[] GetPayments(int userId)
         {
-            var adapter = new SqlDataAdapter();
-            var table = new DataTable();
-
-            var textId = $"Select OrderId, MoneyId, Payment.Summ From Payment Join Orders On OrderId = Id Where MasterId = {userId}";
-            var commadnId = new SqlCommand(textId, connection);
-            adapter.SelectCommand = commadnId;
-            adapter.Fill(table);
-
-            var arr = new Payment[table.Rows.Count];
-            int i = 0;
-
-            foreach (DataRow r in table.Rows)
-                arr[i++] = new Payment
-                {
-                    orderId = r.Field<int>("OrderId"),
-                    moneyId = r.Field<int>("MoneyId"),
-                    value = r.Field<int>("Summ"),
-                };
-
-            return arr;
-        }
-
-
-        public struct Order
-        {
-            public int id;
-            public int summ, paymentSumm;
-            public DateTime date;
-
-            public override string ToString()
+            using (Context db = new Context())
             {
-                return id + "     " + date.ToString("yyyy-MM-dd") + "     " + summ + "     " + paymentSumm + "     " + (summ == paymentSumm ? "+" : "-");
+                // Костыли, так как Join работает непонятно.
+
+                var payments = db.Payments.Join(db.Orders,
+                    u => u.OrderId,
+                    c => c.Id,
+                    (u, c) => new PaymentWithNameId()
+                    {
+                        payment = u,
+                        userId = (int)c.MasterId
+                    });
+
+                var arr = payments.Where(p => p.userId == userId).ToArray();
+                var outArr = new Payment[arr.Length];
+                for (int i = 0; i < arr.Length; i++)
+                    outArr[i] = arr[i].payment;
+                return outArr;
             }
         }
 
-        public struct Money
+        private class PaymentWithNameId
         {
-            public int id;
-            public int summ, summLeft;
-            public DateTime date;
-
-            public override string ToString()
-            {
-                return id + "     " + date.ToString("yyyy-MM-dd") + "     " + summ + "     " + summLeft;
-            }
+            public Payment payment;
+            public int userId;
         }
-
-        public struct Payment
+        
+        private class Context : DbContext
         {
-            public int orderId, moneyId, value;
+            public Context() : base("VittaEntities")
+            { }
 
-            public override string ToString()
-            {
-                return orderId + "     " + moneyId + "     " + value;
-            }
+            public DbSet<User> Users { get; set; }
+            public DbSet<Money> Money { get; set; }
+            public DbSet<Order> Orders { get; set; }
+            public DbSet<Payment> Payments { get; set; }
+        }
+    }
+
+    // To String
+
+    partial class Money
+    {
+        public override string ToString()
+        {
+            return Id + "     " + Date + "     " + Summ + "     " + SummLeft;
+        }
+    }
+    
+    partial class Order
+    {
+        public override string ToString()
+        {
+            return Id + "     " + Date + "     " + Summ + "     " + PaymentSumm + "     " + (Summ == PaymentSumm ? "+" : "-");
+        }
+    }
+
+    partial class Payment
+    {
+        public override string ToString()
+        {
+            return OrderId + "     " + MoneyId + "     " + Summ;
         }
     }
 }

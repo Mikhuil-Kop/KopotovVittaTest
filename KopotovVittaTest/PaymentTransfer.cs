@@ -27,20 +27,15 @@ namespace KopotovVittaTest
             orderLabel.Text = order.ToString();
             MoneyLabel.Text = money.ToString();
 
-            max = Math.Min(order.summ - order.paymentSumm, money.summLeft);
+            max = Math.Min(order.Summ - order.PaymentSumm, money.SummLeft);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             if (int.TryParse(textBox1.Text, out int val) && val > 0 && val <= max)
             {
-                int i = Database.CreatePayment(ordersId, moneyId, val);
-                //MessageBox.Show(i.ToString());
-
-                // При успешной оплате и при отсутствии артефактов, оставленных
-                // во время тестирования БД возвращает 5.
-                if (i == 5)
-                   MessageBox.Show("Операция прошла успешно.");
+                if (Database.CreatePayment(ordersId, moneyId, val))
+                    MessageBox.Show("Операция прошла успешно.");
                 else
                     MessageBox.Show("Данные были изменены. Повторите попытку.");
                 Hide();

@@ -93,7 +93,7 @@ namespace KopotovVittaTest
 
             foreach (var o in orders)
             {
-                ordersIds[i++] = o.id;
+                ordersIds[i++] = o.Id;
                 ordersList.Items.Add(o);
             }
         }
@@ -107,7 +107,7 @@ namespace KopotovVittaTest
 
             foreach (var m in money)
             {
-                moneyIds[i++] = m.id;
+                moneyIds[i++] = m.Id;
                 moneyList.Items.Add(m);
             }
         }

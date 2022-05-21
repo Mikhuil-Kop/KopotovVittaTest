@@ -15,13 +15,9 @@ namespace KopotovVittaTest
         [STAThread]
         static void Main()
         {
-            Database.Initialize();
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
-
-            Database.Close();
         }
     }
 }

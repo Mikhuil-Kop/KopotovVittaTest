@@ -10,3 +10,8 @@ C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaT
 C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.pdb
 C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.MainForm.resources
 C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.PaymentTransfer.resources
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\bin\Debug\EntityFramework.dll
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\bin\Debug\EntityFramework.xml
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\Михаил Копотов\source\repos\KopotovVittaTest\KopotovVittaTest\obj\Debug\KopotovVittaTest.csproj.CopyComplete
