@@ -108,22 +108,49 @@ GO
 
 
 
-Триггер:
+Триггеры
 
-USE [Vitta]
-GO
-/****** Object:  Trigger [dbo].[PaymentCreation]    Script Date: 19.05.2022 23:58:46 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-ALTER Trigger [dbo].[PaymentCreation]
-On [dbo].[Payment] After Insert As
+------------------------- Хороший вариант. Работает для нескольких Insert -------------------------
+
+Alter Trigger PaymentCreation On Payment Instead Of Insert As
+Begin
+
+Create Table #MyInsert(
+	OrderId Int,
+	MoneyId Int,
+	Summ Int
+)
+
+Insert Into #MyInsert (OrderId, MoneyId, Summ)
+Select P1.OrderId, P1.MoneyId, P1.Summ
+		From inserted As P1
+	Left Join (Select Sum(Summ) as OrderSumm, OrderId From inserted Group By OrderId) As P2
+		On P1.OrderId = P2.OrderId
+	Left Join (Select Sum(Summ) as MoneySumm, MoneyId From inserted Group By MoneyId) As P3
+		On P1.MoneyId = P3.MoneyId
+	Left Join Orders
+		On P1.OrderId = Orders.Id
+	Left Join Money
+		On P1.MoneyId = Money.Id
+
+	Where Orders.Summ - Orders.PaymentSumm >= OrderSumm And Money.SummLeft >= MoneySumm
+
+Declare @message Int
+Set @message = (Select Count(*) From #MyInsert)
+Print(@message)
+
+Insert Into Payment(OrderId, MoneyId, Summ)
+	Select OrderId, MoneyId, Summ
+	From #MyInsert
 
 Update Orders
-Set PaymentSumm = PaymentSumm + (Select SUM(Summ) From inserted Where Id = OrderId)
-Where Id In (Select OrderId From inserted)
+Set PaymentSumm = PaymentSumm + (Select SUM(Summ) From #MyInsert Where Id = OrderId)
+Where Id In (Select OrderId From #MyInsert)
 
 Update Money
-Set SummLeft = SummLeft - (Select SUM(Summ) From inserted Where Id = MoneyId)
-Where Id In (Select MoneyId From inserted)
+Set SummLeft = SummLeft - (Select SUM(Summ) From #MyInsert Where Id = MoneyId)
+Where Id In (Select MoneyId From #MyInsert)
+
+
+Drop Table #MyInsert
+End

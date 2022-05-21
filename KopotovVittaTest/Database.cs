@@ -70,7 +70,7 @@ namespace KopotovVittaTest
         }
 
 
-        public static void CreateOrder(int userId, int value, DateTime date)
+        public static int CreateOrder(int userId, int value, DateTime date)
         {
             var d = date.Date.ToString("yyyy-MM-dd");
 
@@ -79,10 +79,10 @@ namespace KopotovVittaTest
                 $" else " +
                 $"Insert Into Orders(Id, Date, Summ, PaymentSumm, MasterId) Values(0, '{d}', {value}, 0, {userId})";
             var commandInsert = new SqlCommand(textInsert, connection);
-            commandInsert.ExecuteNonQuery();
+            return commandInsert.ExecuteNonQuery();
         }
 
-        public static void CreateMoney(int userId, int value, DateTime date)
+        public static int CreateMoney(int userId, int value, DateTime date)
         {
             var d = date.Date.ToString("yyyy-MM-dd");
 
@@ -91,14 +91,14 @@ namespace KopotovVittaTest
                  $" else " +
                  $"Insert Into Money(Id, Date, Summ, SummLeft, MasterId) Values(0, '{d}', {value}, {value}, {userId})";
             var commandInsert = new SqlCommand(textInsert, connection);
-            commandInsert.ExecuteNonQuery();
+            return commandInsert.ExecuteNonQuery();
         }
 
-        public static void CreatePayment(int ordersId, int moneyId, int val)
+        public static int CreatePayment(int ordersId, int moneyId, int val)
         {
             var textInsert = $"Insert Into Payment(MoneyId, OrderId, Summ) Values({moneyId},{ordersId},{val})";
             var commandInsert = new SqlCommand(textInsert, connection);
-            commandInsert.ExecuteNonQuery();
+            return commandInsert.ExecuteNonQuery();
         }
 
 

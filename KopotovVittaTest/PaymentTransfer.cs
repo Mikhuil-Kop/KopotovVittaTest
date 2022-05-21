@@ -34,7 +34,15 @@ namespace KopotovVittaTest
         {
             if (int.TryParse(textBox1.Text, out int val) && val > 0 && val <= max)
             {
-                Database.CreatePayment(ordersId, moneyId, val);
+                int i = Database.CreatePayment(ordersId, moneyId, val);
+                //MessageBox.Show(i.ToString());
+
+                // При успешной оплате и при отсутствии артефактов, оставленных
+                // во время тестирования БД возвращает 5.
+                if (i == 5)
+                   MessageBox.Show("Операция прошла успешно.");
+                else
+                    MessageBox.Show("Данные были изменены. Повторите попытку.");
                 Hide();
             }
             else

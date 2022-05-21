@@ -30,6 +30,7 @@ namespace KopotovVittaTest
             this.Hide();
             form.ShowDialog();
             this.Show();
+            //form.Show();
         }
     }
 }

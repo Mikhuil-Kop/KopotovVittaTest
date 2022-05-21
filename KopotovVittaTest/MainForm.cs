@@ -62,10 +62,26 @@ namespace KopotovVittaTest
 
             var form = new PaymentTransfer(ordersIds[orderId], moneyIds[moneyId]);
             form.ShowDialog();
+            //form.Show();
 
             UpdateOrdersList();
             UpdateMoneyList();
             UpdatePaymentList();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            UpdateOrdersList();
+            UpdateMoneyList();
+            UpdatePaymentList();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            UpdateOrdersList();
+            UpdateMoneyList();
+            UpdatePaymentList();
+            SystemSounds.Hand.Play();
         }
 
         private void UpdateOrdersList()
